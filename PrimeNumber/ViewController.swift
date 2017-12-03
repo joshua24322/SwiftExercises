@@ -36,7 +36,7 @@ class ViewController: UIViewController {
             }
         }
         */
-        // above code can be simply express with below
+        // above code can be simply express with
         if let inputText = inputTextField.text, let inputNumber = Int(inputText){
             checkPrime(withNumber: inputNumber){
                 self.resultLable.text = $0
@@ -46,7 +46,6 @@ class ViewController: UIViewController {
         inputTextField.text = "" //let inputTextField empty after check prime number
     }
     
-    //畫面剛被讀入，程式剛執行會執行的程式
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -54,7 +53,6 @@ class ViewController: UIViewController {
         //push the keyboard up
     }
     
-    //記憶體不足時會執行
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
