@@ -299,15 +299,14 @@ class RestaurantTableViewController: UITableViewController {
             cell.accessoryViewImage.isHidden = self.restaurants[indexPath.row].isVisited ? false : true
             compltionHandler(true)
         }
-        
-        tickAction.backgroundColor = UIColor(red: 39, green: 174, blue: 96, alpha: 1.0)
+
+        tickAction.backgroundColor = UIColor(red: 39, green: 174, blue: 96)
         // RGB parameter use UIColer initializer with Ext
         let checkUIImageName = (restaurants[indexPath.row].isVisited) ? "undo" : "tick"
         tickAction.image = UIImage(named: checkUIImageName)
         let swipeConfiguration = UISwipeActionsConfiguration(actions: [tickAction])
-        
+
         return swipeConfiguration
-        
     }
     
     // MARK: - Navigation

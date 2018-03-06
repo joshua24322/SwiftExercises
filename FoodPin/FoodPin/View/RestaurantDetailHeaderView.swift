@@ -11,6 +11,7 @@ import UIKit
 class RestaurantDetailHeaderView: UIView {
 
     @IBOutlet weak var headerImageView: UIImageView!
+    @IBOutlet weak var ratingImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel! {
         // MARK: - Solve contextual out of range in nameLabel
         didSet {

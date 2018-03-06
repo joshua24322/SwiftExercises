@@ -1,0 +1,48 @@
+
+/* Class = "UIButton"; normalTitle = "Cool"; ObjectID = "83H-qU-K3g"; */
+"83H-qU-K3g.normalTitle" = "Cool";
+
+/* Class = "UILabel"; text = "Subsection Title"; ObjectID = "9tQ-XI-CK0"; */
+"9tQ-XI-CK0.text" = "Subsection Title";
+
+/* Class = "UIButton"; normalTitle = "Rate it"; ObjectID = "DtY-EG-MtK"; */
+"DtY-EG-MtK.normalTitle" = "Rate it";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "Ebm-eY-yxQ"; */
+"Ebm-eY-yxQ.text" = "Label";
+
+/* Class = "UIButton"; normalTitle = "Happy"; ObjectID = "Jp1-7s-hNH"; */
+"Jp1-7s-hNH.normalTitle" = "Happy";
+
+/* Class = "UIButton"; normalTitle = "Sad"; ObjectID = "LhU-ih-l5E"; */
+"LhU-ih-l5E.normalTitle" = "Sad";
+
+/* Class = "UIButton"; normalTitle = "Angry"; ObjectID = "MTB-iD-8eG"; */
+"MTB-iD-8eG.normalTitle" = "Angry";
+
+/* Class = "UINavigationItem"; title = "Food Pin"; ObjectID = "O4X-Vh-n2d"; */
+"O4X-Vh-n2d.title" = "Food Pin";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "QVb-ed-qqZ"; */
+"QVb-ed-qqZ.text" = "Label";
+
+/* Class = "UIButton"; normalTitle = "Love"; ObjectID = "VDy-H1-Z60"; */
+"VDy-H1-Z60.normalTitle" = "Love";
+
+/* Class = "UILabel"; text = "Type"; ObjectID = "Z09-gp-aBw"; */
+"Z09-gp-aBw.text" = "Type";
+
+/* Class = "UILabel"; text = "Name"; ObjectID = "hN2-nX-FuC"; */
+"hN2-nX-FuC.text" = "Name";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "muJ-XC-q7r"; */
+"muJ-XC-q7r.text" = "Location";
+
+/* Class = "UIBarButtonItem"; title = " "; ObjectID = "rEw-Qe-h3q"; */
+"rEw-Qe-h3q.title" = " ";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "ty2-5Q-6oe"; */
+"ty2-5Q-6oe.text" = "Label";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "zfE-a0-Qaf"; */
+"zfE-a0-Qaf.text" = "Label";
