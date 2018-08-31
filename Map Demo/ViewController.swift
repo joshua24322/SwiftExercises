@@ -88,34 +88,38 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         mapView.addAnnotation(annotation)
     }
     
-    // MARK: - Customize Annotation with screen long press
+    // MARK: - Customize Annotation with long press gesture
     func annotationWithLongPress() {
         // initial a instance of long press, use UILongPressGestureRecognizer class, meanwhile perform him delegate
+        
         let screenLongPress = UILongPressGestureRecognizer(target: self, action: #selector(addPin(_:)))
         screenLongPress.delegate = self
         
         // The minimum period fingers must press on the view for the gesture to be recognized.
-        screenLongPress.minimumPressDuration = 0.05
+        screenLongPress.minimumPressDuration = 1
         
         // Attaches a gesture recognizer to the view
         mapView.addGestureRecognizer(screenLongPress)
     }
     
     @objc func addPin(_ sender: UILongPressGestureRecognizer) {
-        // due to long press gesture has both events of begin and end by ddefault, so that press one time will get two events respone
-        // via UIGestureRecognizerState.begin detect the long press gesture begin event
-        if sender.state == UIGestureRecognizerState.began {
-            // annotation - title & subtitle
-            annotationTitleParameter("My Pin", "Pin Description")
-            // annotation send to screen coordinate from user touch
-            let touchPoint = sender.location(in: mapView)
-            // Converts a point in the specified view’s coordinate system to a map coordinate.
-            let locationCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-            // annotation - coordinate
-            annotation.coordinate = locationCoordinate
-            // add annotation instance to map view
-            mapView.addAnnotation(annotation)
-            print("long press response test")
+        /*due to long press gesture has several events involve begin and end, gesture one time will get two events respone by default
+        via UIGestureRecognizerState.begin detect the long press gesture begin event*/
+        for pressCount in 0 ..< sender.numberOfTouchesRequired {
+            if sender.state == UIGestureRecognizerState.began {
+                // annotation - title & subtitle
+                annotationTitleParameter("My Pin", "Pin Description")
+                // annotation send to screen coordinate from user touch
+                let touchPoint = sender.location(in: mapView)
+                // Converts a point in the specified view’s coordinate system to a map coordinate.
+                let locationCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+                // annotation - coordinate
+                annotation.coordinate = locationCoordinate
+                // add annotation instance to map view
+                mapView.addAnnotation(annotation)
+                // verify the gesture response
+                print("Long press count: \(pressCount), Coordinate: (\(touchPoint.x), \(touchPoint.y)")
+            }
         }
     }
     
