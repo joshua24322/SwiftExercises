@@ -41,6 +41,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var longitude: CLLocationDegrees?
     var location: CLLocationCoordinate2D?
     let annotation = MKPointAnnotation()
+    var counter = 0
+    
     @IBOutlet weak var mapView: MKMapView!
     
     override func viewDidLoad() {
@@ -77,6 +79,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     // MARK: - Default Annotation
     func defaultAnnotation() {
+        
         // annotation - title & subtitle
         annotationTitleParameter("My Location", "Location Description")
         
@@ -100,27 +103,26 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         // Attaches a gesture recognizer to the view
         mapView.addGestureRecognizer(screenLongPress)
+        
     }
     
     @objc func addPin(_ sender: UILongPressGestureRecognizer) {
         /*due to long press gesture has several events involve begin and end, gesture one time will get two events respone by default
         via UIGestureRecognizerState.begin detect the long press gesture begin event*/
-        for pressCount in 0 ..< sender.numberOfTouchesRequired {
-            if sender.state == UIGestureRecognizerState.began {
-                // annotation - title & subtitle
-                annotationTitleParameter("My Pin", "Pin Description")
-                // annotation send to screen coordinate from user touch
-                let touchPoint = sender.location(in: mapView)
-                // Converts a point in the specified view’s coordinate system to a map coordinate.
-                let locationCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-                // annotation - coordinate
-                annotation.coordinate = locationCoordinate
-                // add annotation instance to map view
-                mapView.addAnnotation(annotation)
-                // verify the gesture response
-                print("Long press count: \(pressCount), Coordinate: (\(touchPoint.x), \(touchPoint.y)")
-            }
-        }
+        guard sender.state == UIGestureRecognizerState.began else { return }
+        // annotation - title & subtitle
+        annotationTitleParameter("My Pin", "Pin Description")
+        // annotation send to screen coordinate from user touch
+        let touchPoint = sender.location(in: mapView)
+        // Converts a point in the specified view’s coordinate system to a map coordinate.
+        let locationCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+        // annotation - coordinate
+        annotation.coordinate = locationCoordinate
+        // add annotation instance to map view
+        mapView.addAnnotation(annotation)
+        // verify the gesture response
+        counter += 1
+        print("Long Press Counter: \(counter), Coordinate: (\(touchPoint.x), \(touchPoint.y))")
     }
     
     // MARK: - CLLAuthorizationStatus
