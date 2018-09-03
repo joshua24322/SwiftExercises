@@ -21,13 +21,27 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="Nfi-rU-0vS">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xmC-Xz-9bi">
+                                <rect key="frame" x="334" y="636" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="tef-vI-3f3"/>
+                                    <constraint firstAttribute="width" constant="60" id="y0M-7o-CLK"/>
+                                </constraints>
+                                <state key="normal" image="icons8-one_finger"/>
+                                <state key="highlighted" image="icons8-doorbell"/>
+                                <connections>
+                                    <action selector="updateUserCenterCoordinate:" destination="BYZ-38-t0r" eventType="touchUpInside" id="93l-bU-i3q"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="Nfi-rU-0vS" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="2ig-4G-Xoj"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="xmC-Xz-9bi" secondAttribute="trailing" constant="20" id="RlV-SJ-clu"/>
                             <constraint firstItem="Nfi-rU-0vS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="VXb-Di-fPO"/>
                             <constraint firstItem="Nfi-rU-0vS" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="WqG-0Q-I5f"/>
                             <constraint firstItem="Nfi-rU-0vS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="-20" id="eqQ-zP-Fvn"/>
+                            <constraint firstAttribute="bottom" secondItem="xmC-Xz-9bi" secondAttribute="bottom" constant="40" id="qpy-eo-ehO"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -40,4 +54,8 @@
             <point key="canvasLocation" x="137.68115942028987" y="132.88043478260872"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="icons8-doorbell" width="75" height="75"/>
+        <image name="icons8-one_finger" width="75" height="75"/>
+    </resources>
 </document>

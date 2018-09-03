@@ -44,16 +44,28 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var counter = 0
     
     @IBOutlet weak var mapView: MKMapView!
+    @IBAction func updateUserCenterCoordinate(_ sender: UIButton) {
+        UIView.animate(withDuration: 1) {
+            self.theMap()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        mapView.delegate = self
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.distanceFilter = kCLLocationAccuracyNearestTenMeters
+        locationManager.distanceFilter = 500
+        
+        mapView.delegate = self
+        mapView.showsCompass = true // 顯示指南針，從正北開始旋轉後才會出現
+        mapView.showsScale = true // 視圖左上角顯示比例尺
+        mapView.showsTraffic = true // 在地圖上顯示交通流量大的點
+        mapView.mapType = .standard // 標準地圖
     }
     
-    func locationPoint(_ lhs: CLLocationDegrees?, _ rhs: CLLocationDegrees?) {
+    // ???: -
+    //let coordinate = locationManager.location?.coordinate
+    func coordinate(_ lhs: CLLocationDegrees?, _ rhs: CLLocationDegrees?) {
         guard let lhs = lhs, let rhs = rhs else { return }
         location = CLLocationCoordinate2D(latitude: lhs, longitude: rhs)
     }
@@ -65,41 +77,47 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     // MARK: - MapView setup
-    func mapLocation() {
+    func theMap() {
+        //guard let location = locationManager.location?.coordinate else { return }
         let latDelta: CLLocationDegrees = 0.0030
         let lonDelta: CLLocationDegrees = 0.0030
         let zoomSpan: MKCoordinateSpan = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
         guard let location = location else { return }
         let region: MKCoordinateRegion = MKCoordinateRegion(center: location, span: zoomSpan)
         mapView.setRegion(region, animated: true)
-        mapView.showsUserLocation = true
+        mapView.showsUserLocation = true //display the user’s location
         defaultAnnotation()
-        annotationWithLongPress()
+        annotationWithLongPressGesture()
     }
     
     // MARK: - Default Annotation
     func defaultAnnotation() {
-        
-        // annotation - title & subtitle
-        annotationTitleParameter("My Location", "Location Description")
-        
         // annotation - coordinate
-        if let location = location {
-            annotation.coordinate = location
+        guard let location = location else { return }
+        annotation.coordinate = location
+        // convert type CLLocationCoordinate2D to type CLLocation, for CLGeocoder() class
+        let annotationLocation: CLLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
+        CLGeocoder().reverseGeocodeLocation(annotationLocation) { (placemarks, error) in
+            guard error == nil else { return }
+            guard let placemark = placemarks?[0] else { return }
+            // annotation - title & subtitle
+            self.annotationTitleParameter(placemark.locality, placemark.name)
+            // placemark.locality: The city associated with the placemark
+            // placemark.name: The name of the placemark (address)
         }
+        
         // add annotation instance to map view
         mapView.addAnnotation(annotation)
     }
     
     // MARK: - Customize Annotation with long press gesture
-    func annotationWithLongPress() {
+    func annotationWithLongPressGesture() {
         // initial a instance of long press, use UILongPressGestureRecognizer class, meanwhile perform him delegate
-        
         let screenLongPress = UILongPressGestureRecognizer(target: self, action: #selector(addPin(_:)))
         screenLongPress.delegate = self
         
         // The minimum period fingers must press on the view for the gesture to be recognized.
-        screenLongPress.minimumPressDuration = 1
+        screenLongPress.minimumPressDuration = 2
         
         // Attaches a gesture recognizer to the view
         mapView.addGestureRecognizer(screenLongPress)
@@ -110,16 +128,25 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         /*due to long press gesture has several events involve begin and end, gesture one time will get two events respone by default
         via UIGestureRecognizerState.begin detect the long press gesture begin event*/
         guard sender.state == UIGestureRecognizerState.began else { return }
-        // annotation - title & subtitle
-        annotationTitleParameter("My Pin", "Pin Description")
         // annotation send to screen coordinate from user touch
         let touchPoint = sender.location(in: mapView)
         // Converts a point in the specified view’s coordinate system to a map coordinate.
-        let locationCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+        let touchPointCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
         // annotation - coordinate
-        annotation.coordinate = locationCoordinate
+        annotation.coordinate = touchPointCoordinate // 將物理座標賦予給Annotation的座標
+        
+        // convert type CLLocationCoordinate2D to type CLLocation, for CLGeocoder() class
+        let annotationLocation: CLLocation = CLLocation(latitude: touchPointCoordinate.latitude, longitude: touchPointCoordinate.longitude)
+        CLGeocoder().reverseGeocodeLocation(annotationLocation) { (placemarks, error) in
+            guard error == nil else { return }
+            guard let placemark = placemarks?[0] else { return }
+            // annotation - title & subtitle
+            self.annotationTitleParameter(placemark.locality, placemark.name)
+        }
+        
         // add annotation instance to map view
         mapView.addAnnotation(annotation)
+        
         // verify the gesture response
         counter += 1
         print("Long Press Counter: \(counter), Coordinate: (\(touchPoint.x), \(touchPoint.y))")
@@ -154,10 +181,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         guard let userLocation:CLLocation = locations.first else { return }
         latitude = userLocation.coordinate.latitude
         longitude = userLocation.coordinate.longitude
-        locationPoint(latitude, longitude)
-        locationManager.stopUpdatingLocation()
-        locationManager.delegate = nil
-        mapLocation()
+        coordinate(latitude, longitude)
+        locationManager.stopUpdatingLocation() // stop update user coordinate
+        //locationManager.delegate = nil
+        theMap()
     }
     
 }
