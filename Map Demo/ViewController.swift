@@ -33,6 +33,7 @@
 
 import UIKit
 import MapKit
+import AudioToolbox
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate {
 
@@ -54,7 +55,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         super.viewDidLoad()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.distanceFilter = 500
+        locationManager.distanceFilter = 500 // meter
         
         mapView.delegate = self
         mapView.showsCompass = true // 顯示指南針，從正北開始旋轉後才會出現
@@ -63,8 +64,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         mapView.mapType = .standard // 標準地圖
     }
     
-    // ???: -
-    //let coordinate = locationManager.location?.coordinate
     func coordinate(_ lhs: CLLocationDegrees?, _ rhs: CLLocationDegrees?) {
         guard let lhs = lhs, let rhs = rhs else { return }
         location = CLLocationCoordinate2D(latitude: lhs, longitude: rhs)
@@ -78,7 +77,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     // MARK: - MapView setup
     func theMap() {
-        //guard let location = locationManager.location?.coordinate else { return }
         let latDelta: CLLocationDegrees = 0.0030
         let lonDelta: CLLocationDegrees = 0.0030
         let zoomSpan: MKCoordinateSpan = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
@@ -117,11 +115,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         screenLongPress.delegate = self
         
         // The minimum period fingers must press on the view for the gesture to be recognized.
-        screenLongPress.minimumPressDuration = 2
+        screenLongPress.minimumPressDuration = 1.5
         
         // Attaches a gesture recognizer to the view
         mapView.addGestureRecognizer(screenLongPress)
-        
     }
     
     @objc func addPin(_ sender: UILongPressGestureRecognizer) {
@@ -132,6 +129,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let touchPoint = sender.location(in: mapView)
         // Converts a point in the specified view’s coordinate system to a map coordinate.
         let touchPointCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+        
         // annotation - coordinate
         annotation.coordinate = touchPointCoordinate // 將物理座標賦予給Annotation的座標
         
@@ -144,12 +142,29 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             self.annotationTitleParameter(placemark.locality, placemark.name)
         }
         
+        // Haptic feedback with peek from 3D Touch
+        AudioServicesPlaySystemSound(1519)
+        
         // add annotation instance to map view
         mapView.addAnnotation(annotation)
         
         // verify the gesture response
         counter += 1
         print("Long Press Counter: \(counter), Coordinate: (\(touchPoint.x), \(touchPoint.y))")
+    }
+    
+    // MARK: - MKAnnotationView
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation.isKind(of: MKUserLocation.self) { return nil }
+        var annotationView: MKAnnotationView? = mapView.dequeueReusableAnnotationView(withIdentifier: "IDENT")
+        if annotationView == nil {
+            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "IDENT")
+            annotationView?.canShowCallout = true
+        }
+        annotationView?.image = UIImage(named: "icons8-geo_fence")
+        annotationView?.isDraggable = false
+        annotationView?.canShowCallout = true
+        return annotationView
     }
     
     // MARK: - CLLAuthorizationStatus
