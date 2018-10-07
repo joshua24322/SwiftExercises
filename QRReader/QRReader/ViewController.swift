@@ -9,14 +9,21 @@
 import UIKit
 import AVFoundation
 
+enum error: Error {
+    case noCameraAvailble
+    case videoInputInitFail
+}
+
 class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     @IBOutlet var videoPreview: UIView!
+    @IBOutlet weak var messageLabel: UILabel!
+    var avCaptureVideoPreviewLayer: AVCaptureVideoPreviewLayer?
     var stringURL = String()
-    enum error: Error {
-        case noCameraAvailble
-        case videoInputInitFail
-    }
+    var qrCodeFramView: UIView? //QRCode edge line
+    
+    // Added to support different barcodes
+    let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,50 +38,74 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if metadataObjects.count > 0 {
             let machineReadableCode = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
-            if machineReadableCode.type == AVMetadataObject.ObjectType.qr {
+            if supportedBarCodes.contains(machineReadableCode.type) {
+                // implement the QRCode edge line
+                let barCodeObject = avCaptureVideoPreviewLayer?.transformedMetadataObject(for: machineReadableCode as AVMetadataMachineReadableCodeObject) as! AVMetadataMachineReadableCodeObject
+                qrCodeFramView?.frame = barCodeObject.bounds
+                
                 stringURL = machineReadableCode.stringValue!
+                messageLabel.text = machineReadableCode.stringValue!
                 performSegue(withIdentifier: "openLink", sender: self)
             }
+        } else {
+            qrCodeFramView?.frame = CGRect.zero
+            messageLabel.text = "No barcode/QR code is detected"
+            return
         }
     }
     
     func scanQRCode() throws {
-        let avCaptureSession = AVCaptureSession()
-        
+        // init AVCaptureDevice with 'AVMediaType.video' for capture video
         guard let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) else {
             print("No camera.")
             throw error.noCameraAvailble
         }
         
+        // use captureDevice to get the object of AVCaptureDeviceInput
         guard let avCaptureInput = try? AVCaptureDeviceInput(device: avCaptureDevice) else {
             print("Failed to init camera.")
             throw error.videoInputInitFail
         }
         
-        let avCaptureMetaOutput = AVCaptureMetadataOutput()
-        avCaptureMetaOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-        
+        // MARK: - init AVCaptureSession() to setting input device
+        let avCaptureSession = AVCaptureSession()
         avCaptureSession.addInput(avCaptureInput)
+        
+        // MARK: - init AVCaptureMetadataOutput() to catch the output device of AVCaptureSession()
+        let avCaptureMetaOutput = AVCaptureMetadataOutput()
         avCaptureSession.addOutput(avCaptureMetaOutput)
         
-        avCaptureMetaOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+        // perform delegate and use the default dispatch queue to execute the call back
+        avCaptureMetaOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         
-        let avCaptureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
-        avCaptureVideoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        avCaptureVideoPreviewLayer.frame = videoPreview.bounds
-        self.videoPreview.layer.addSublayer(avCaptureVideoPreviewLayer)
+        // Detect all the supported bar code
+        avCaptureMetaOutput.metadataObjectTypes = supportedBarCodes
         
+        // MARK: - Initialize the video preview layer and add it as a sublayer to the viewPreview view's layer.
+        avCaptureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
+        avCaptureVideoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        avCaptureVideoPreviewLayer?.frame = videoPreview.bounds
+        self.videoPreview.layer.addSublayer(avCaptureVideoPreviewLayer!)
+        
+        // video capture start
         avCaptureSession.startRunning()
+        
+        // Move the message label to the top view
+        view.bringSubviewToFront(messageLabel)
+        
+        // Initialize QR Code Frame to highlight the QR code
+        qrCodeFramView = UIView()
+        qrCodeFramView?.layer.borderColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        qrCodeFramView?.layer.borderWidth = 3
+        view.addSubview(qrCodeFramView!)
+        view.bringSubviewToFront(qrCodeFramView!)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "openLink" {
             let destination = segue.destination as! WebViewController
             destination.url = URL(string: stringURL)
-            
         }
     }
-
-
 }
 
